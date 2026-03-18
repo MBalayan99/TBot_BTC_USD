@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
@@ -11,20 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Важно для корректного анализа истории (SCM)
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
-        with:
-          args: >
-            -Dsonar.projectKey=my_project_key
-            -Dsonar.sources=.
-            -Dsonar.scanner.skipJreProvisioning=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          # Исправленный синтаксис для заголовка ngrok
-          SONAR_SCANNER_OPTS: >-
-            -Dhttp.extraHeaders=ngrok-skip-browser-warning:true
+          # Исправленный формат заголовка для обхода заглушки ngrok
+          # Мы убрали лишние кавычки, чтобы Java не выдавала ClassNotFoundException
+          SONAR_SCANNER_OPTS: -Dhttp.extraHeaders=ngrok-skip-browser-warning:true
+
+      # Раскомментируйте эти строки, если хотите, чтобы билд падал при неудачном Quality Gate
+      # - name: SonarQube Quality Gate Check
+      #   uses: SonarSource/sonarqube-quality-gate-action@v1
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
