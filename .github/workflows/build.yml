@@ -16,19 +16,15 @@ jobs:
           fetch-depth: 0
 
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5  #
+        uses: SonarSource/sonarqube-scan-action@v6
         with:
           args: >
-            -Dsonar.projectKey=vash_proekt_key
+            -Dsonar.projectKey=my_project_key
             -Dsonar.sources=.
+            -Dsonar.scanner.skipJreProvisioning=true
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          
-          SONAR_SCANNER_OPTS: "-Dhttp.extraHeaders='ngrok-skip-browser-warning: true'"
-
-      
-      # - uses: SonarSource/sonarqube-quality-gate-action@v1
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          # Исправленный синтаксис для заголовка ngrok
+          SONAR_SCANNER_OPTS: >-
+            -Dhttp.extraHeaders=ngrok-skip-browser-warning:true
