@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     name: Build and analyze
-    runs-on: self-hosted  # Changed from ubuntu-latest
+    runs-on: self-hosted
     
     steps:
       - name: Checkout repository
@@ -18,27 +18,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Step to verify the URL isn't empty or malformed before starting
-      - name: Pre-flight URL check
-        run: |
-          if [ -z "${SONAR_HOST_URL}" ]; then
-            echo "Error: SONAR_HOST_URL is empty. Check your GitHub Secrets."
-            exit 1
-          fi
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          # Using >- prevents shell-specific escaping issues on self-hosted runners
-          # We wrap the whole D-property in quotes to be safe
-          SONAR_SCANNER_OPTS: >-
-            -Dhttp.extraHeaders="ngrok-skip-browser-warning:true"
+          # Используем локальный IP или хост вместо ngrok
+          SONAR_HOST_URL: http://127.0.0.1:9000 
 
-      # Optional Quality Gate Check
       # - name: SonarQube Quality Gate Check
       #   uses: SonarSource/sonarqube-quality-gate-action@v1
       #   timeout-minutes: 5
